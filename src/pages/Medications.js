@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { medicationAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 
@@ -29,9 +29,22 @@ const Medications = () => {
     'Other'
   ];
 
+  // Wrap fetchMedications in useCallback to prevent infinite re-renders
+  const fetchMedications = useCallback(async () => {
+    try {
+      const response = await medicationAPI.getAll();
+      setMedications(response.data.data);
+    } catch (error) {
+      console.error('Error fetching medications:', error);
+      showAlert('Error loading medications', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, []); // Add any dependencies that fetchMedications uses
+
   useEffect(() => {
     fetchMedications();
-  }, []);
+  }, [fetchMedications]); // Add fetchMedications to dependencies
 
   // Auto-hide alert after 3 seconds
   useEffect(() => {
@@ -45,18 +58,6 @@ const Medications = () => {
 
   const showAlert = (message, type = 'success') => {
     setAlert({ show: true, message, type });
-  };
-
-  const fetchMedications = async () => {
-    try {
-      const response = await medicationAPI.getAll();
-      setMedications(response.data.data);
-    } catch (error) {
-      console.error('Error fetching medications:', error);
-      showAlert('Error loading medications', 'error');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleChange = (e) => {

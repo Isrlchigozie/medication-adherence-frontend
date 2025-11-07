@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { reportAPI, adherenceAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 
@@ -9,25 +9,8 @@ const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
-
-  // Auto-hide alert after 3 seconds
-  useEffect(() => {
-    if (alert.show) {
-      const timer = setTimeout(() => {
-        setAlert({ show: false, message: '', type: '' });
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [alert.show]);
-
-  const showAlert = (message, type = 'success') => {
-    setAlert({ show: true, message, type });
-  };
-
-  const fetchReports = async () => {
+  // Wrap fetchReports in useCallback to prevent infinite re-renders
+  const fetchReports = useCallback(async () => {
     try {
       const [statsRes, medWiseRes, logsRes] = await Promise.all([
         reportAPI.getStats(),
@@ -44,6 +27,24 @@ const Reports = () => {
     } finally {
       setLoading(false);
     }
+  }, []); // Add any dependencies that fetchReports uses
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]); // Add fetchReports to dependencies
+
+  // Auto-hide alert after 3 seconds
+  useEffect(() => {
+    if (alert.show) {
+      const timer = setTimeout(() => {
+        setAlert({ show: false, message: '', type: '' });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert.show]);
+
+  const showAlert = (message, type = 'success') => {
+    setAlert({ show: true, message, type });
   };
 
   if (loading) {

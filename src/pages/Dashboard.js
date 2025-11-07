@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { adherenceAPI, reportAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 
@@ -10,27 +10,8 @@ const Dashboard = () => {
   const [markedReminders, setMarkedReminders] = useState({});
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
 
-  useEffect(() => {
-    fetchData();
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Auto-hide alert after 3 seconds
-  useEffect(() => {
-    if (alert.show) {
-      const timer = setTimeout(() => {
-        setAlert({ show: false, message: '', type: '' });
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [alert.show]);
-
-  const showAlert = (message, type = 'success') => {
-    setAlert({ show: true, message, type });
-  };
-
-  const fetchData = async () => {
+  // Wrap fetchData in useCallback to prevent infinite re-renders
+  const fetchData = useCallback(async () => {
     try {
       const [remindersRes, statsRes] = await Promise.all([
         adherenceAPI.getTodayReminders(),
@@ -51,6 +32,26 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  }, []); // Add any dependencies that fetchData uses
+
+  useEffect(() => {
+    fetchData();
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, [fetchData]); // Add fetchData to dependencies
+
+  // Auto-hide alert after 3 seconds
+  useEffect(() => {
+    if (alert.show) {
+      const timer = setTimeout(() => {
+        setAlert({ show: false, message: '', type: '' });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert.show]);
+
+  const showAlert = (message, type = 'success') => {
+    setAlert({ show: true, message, type });
   };
 
   const markDose = async (medicationId, timeString, status) => {
