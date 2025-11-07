@@ -10,7 +10,6 @@ const Dashboard = () => {
   const [markedReminders, setMarkedReminders] = useState({});
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
 
-  // Wrap fetchData in useCallback to prevent infinite re-renders
   const fetchData = useCallback(async () => {
     try {
       const [remindersRes, statsRes] = await Promise.all([
@@ -32,13 +31,13 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, []); // Add any dependencies that fetchData uses
+  }, []); 
 
   useEffect(() => {
     fetchData();
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
-  }, [fetchData]); // Add fetchData to dependencies
+  }, [fetchData]); 
 
   // Auto-hide alert after 3 seconds
   useEffect(() => {

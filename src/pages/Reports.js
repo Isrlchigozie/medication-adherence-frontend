@@ -9,7 +9,6 @@ const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
 
-  // Wrap fetchReports in useCallback to prevent infinite re-renders
   const fetchReports = useCallback(async () => {
     try {
       const [statsRes, medWiseRes, logsRes] = await Promise.all([
@@ -27,11 +26,11 @@ const Reports = () => {
     } finally {
       setLoading(false);
     }
-  }, []); // Add any dependencies that fetchReports uses
+  }, []); 
 
   useEffect(() => {
     fetchReports();
-  }, [fetchReports]); // Add fetchReports to dependencies
+  }, [fetchReports]);
 
   // Auto-hide alert after 3 seconds
   useEffect(() => {

@@ -21,7 +21,6 @@ const Medications = () => {
     instructions: ''
   });
 
-  // Only use the medication types that work with your backend
   const allowedMedicationTypes = [
     'Painkiller',
     'Antibiotic', 
@@ -29,7 +28,6 @@ const Medications = () => {
     'Other'
   ];
 
-  // Wrap fetchMedications in useCallback to prevent infinite re-renders
   const fetchMedications = useCallback(async () => {
     try {
       const response = await medicationAPI.getAll();
@@ -40,11 +38,11 @@ const Medications = () => {
     } finally {
       setLoading(false);
     }
-  }, []); // Add any dependencies that fetchMedications uses
+  }, []);
 
   useEffect(() => {
     fetchMedications();
-  }, [fetchMedications]); // Add fetchMedications to dependencies
+  }, [fetchMedications]);
 
   // Auto-hide alert after 3 seconds
   useEffect(() => {
